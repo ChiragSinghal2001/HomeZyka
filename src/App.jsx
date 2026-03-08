@@ -1,35 +1,56 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AppProvider } from './context/AppContext';
+import Navbar from './components/Navbar';
+import Footer from './Components/Footer'; // Import your new Footer
+
+// Import all your pages
+import Home from './pages/Home';
+import Browse from './pages/Browse';
+import MealDetail from './pages/MealDetail';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+
+import HowItWorks from './pages/HowItWorks';
+import Dashboard from './pages/Dashboard';
+import Cooks from './pages/Cooks';
+import BecomeCook from './pages/BecomeCook';
+import Orders from './pages/Orders';
+import Safety from './pages/Safety';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <AppProvider>
+      <Router>
+        {/* Visual FX */}
+        <div className="grain-overlay"></div>
+        
+        {/* Layout Wrapper */}
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          
+          {/* Main content expands to push footer down */}
+          <main className="flex-grow pt-20">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/meal/:id" element={<MealDetail />} />
+              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/cooks" element={<Cooks />} />
+              <Route path="/become-cook" element={<BecomeCook />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/safety" element={<Safety />} />
+            </Routes>
+          </main>
+          
+          <Footer />
+        </div>
+      </Router>
+    </AppProvider>
+  );
 }
 
-export default App
+export default App;
