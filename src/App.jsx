@@ -1,9 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import Navbar from './Components/Navbar';
-import Footer from './Components/Footer'; // Import your new Footer
-
-// Import all your pages
+import Footer from './Components/Footer';
 import Home from './pages/Home';
 import Browse from './pages/Browse';
 import MealDetail from './pages/MealDetail';
