@@ -1,5 +1,4 @@
 import { createContext, useState, useContext } from 'react';
-// Move your mockMeals and mockUsers from data.js into a new file: src/data/mockData.js
 import { mockMeals, mockUsers } from '../data/mockData';
 
 const AppContext = createContext();
