@@ -18,7 +18,7 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  // In src/components/Navbar.jsx
+  // In src/Components/Navbar.jsx
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
   if (element) {
