@@ -52,7 +52,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-16 pt-8 border-t border-dark/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-gray-text text-sm">&copy; 2024 HomeZayka. All rights reserved.</p>
+          <p className="text-gray-text text-sm">&copy; 2026 HomeZayka. All rights reserved.</p>
         </div>
       </div>
     </footer>

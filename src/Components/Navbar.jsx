@@ -18,7 +18,7 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  // In src/Components/Navbar.jsx
+
 const scrollToSection = (id) => {
   const element = document.getElementById(id);
   if (element) {
@@ -26,7 +26,6 @@ const scrollToSection = (id) => {
   }
 };
 
-// Use it in your menu:
 <button onClick={() => scrollToSection('how-it-works')} className="text-sm font-medium text-gray-text hover:text-dark">
   How it works
 </button>
