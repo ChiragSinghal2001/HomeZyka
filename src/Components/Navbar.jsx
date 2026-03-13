@@ -6,7 +6,6 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
 
-  // Handle the scroll effect for the background transition
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 50) {
