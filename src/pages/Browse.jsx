@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import MealCard from '../Components/MealCard';
-// Import the new constants
+
 import { cuisines, categories, locations, dietaryOptions } from '../data/mockData';
 
 export default function Browse() {
