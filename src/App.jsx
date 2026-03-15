@@ -19,10 +19,7 @@ function App() {
   return (
     <AppProvider>
       <Router>
-        {/* Visual FX */}
         <div className="grain-overlay"></div>
-        
-        {/* Layout Wrapper */}
         <div className="flex flex-col min-h-screen">
           <Navbar />
           
