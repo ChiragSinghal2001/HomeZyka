@@ -23,7 +23,6 @@ function App() {
         <div className="flex flex-col min-h-screen">
           <Navbar />
           
-          {/* Main content expands to push footer down */}
           <main className="flex-grow pt-20">
             <Routes>
               <Route path="/" element={<Home />} />
