@@ -8,7 +8,6 @@ export const FoodProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
 
   const bookMeal = (mealId, portions) => {
-    // Logic to update portionsAvailable and add to orders
     setMeals(prev => prev.map(m => 
       m.id === mealId ? { ...m, portionsAvailable: m.portionsAvailable - portions } : m
     ));
