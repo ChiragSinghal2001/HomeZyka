@@ -1,6 +1,15 @@
+import { useNavigate } from 'react-router-dom';
 export default function MealCard({ meal, cook }) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/meal/${meal.id}`);
+  };
   return (
-    <div className="bg-white rounded-[2rem] overflow-hidden border border-dark/10 hover:shadow-xl transition-all group">
+    
+    <div 
+    onClick={handleCardClick}
+    className="bg-white rounded-[2rem] overflow-hidden border border-dark/10 hover:shadow-xl transition-all group">
       <div className="relative h-56 overflow-hidden">
         <img src={meal.images[0]} alt={meal.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
         <div className="absolute top-4 left-4 flex gap-2">

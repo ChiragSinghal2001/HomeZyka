@@ -318,8 +318,8 @@ export const mockMeals = [
     portionsAvailable: 6,
     portionsTotal: 8,
     images: [
-      'https://images.unsplash.com/photo-1626804475297-411d863b5285?w=800&h=600&fit=crop',
-      'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=800&h=600&fit=crop',
+      'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=800&q=80',
+    'https://images.unsplash.com/photo-1626804475297-411d863b5285?w=800&q=80',
     ],
     cookId: 'u1',
     pickupTimeSlots: [
