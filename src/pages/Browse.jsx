@@ -37,36 +37,46 @@ export default function Browse() {
   });
 
   return (
-    <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 xl:px-[7vw]">
+    <main className="pt pb-16 px-4 sm:px-6 lg:px-8 xl:px-[7vw]">
       {/* Search Header */}
-      <div className="mb-8">
+      <div className="mb-2">
         <h1 className="font-display text-4xl sm:text-5xl text-dark mb-2">Browse Meals</h1>
         <p className="text-gray-text text-lg">Discover home-cooked meals from talented cooks near you</p>
       </div>
 
       {/* Top Search Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
-          <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-text"></i>
-          <input 
-            type="text" 
-            placeholder="Search meals, cuisines, cooks..." 
-            className="pl-12 pr-4 py-4 rounded-full bg-white border border-dark/10 w-full focus:outline-none focus:ring-2 focus:ring-mustard"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <select 
-          className="w-full sm:w-48 rounded-full py-4 px-4 bg-white border border-dark/10 outline-none cursor-pointer"
-          value={filters.sort}
-          onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
-        >
-          <option value="Recommended">Recommended</option>
-          <option value="Price: Low to High">Price: Low to High</option>
-          <option value="Price: High to Low">Price: High to Low</option>
-          <option value="Highest Rated">Highest Rated</option>
-        </select>
-      </div>
+  {/* Search Input */}
+  <div className="relative flex-1">
+    <i className="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-text text-sm"></i>
+    <input 
+      type="text" 
+      placeholder="Search meals, cuisines, cooks..." 
+      className="pl-14 pr-6 py-4 rounded-full bg-white border border-dark/10 w-full focus:outline-none focus:ring-2 focus:ring-mustard transition-all shadow-sm font-medium"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  </div>
+
+  {/* Styled Dropdown Container */}
+  <div className="relative w-full sm:w-56">
+    <select 
+      className="w-full appearance-none rounded-full py-4 pl-6 pr-12 bg-white border border-dark/10 outline-none cursor-pointer font-medium text-dark shadow-sm hover:border-dark/20 transition-all"
+      value={filters.sort}
+      onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+    >
+      <option value="Recommended">Recommended</option>
+      <option value="Price: Low to High">Price: Low to High</option>
+      <option value="Price: High to Low">Price: High to Low</option>
+      <option value="Highest Rated">Highest Rated</option>
+    </select>
+    
+    {/* Custom Chevron Arrow Overlay */}
+    <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center text-dark">
+      <i className="fas fa-chevron-down text-[10px] opacity-70"></i>
+    </div>
+  </div>
+</div>
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Sidebar Filters */}

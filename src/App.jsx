@@ -8,7 +8,8 @@ import MealDetail from './pages/MealDetail';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import CookProfile from './pages/CookProfile';
-
+import MyOrders from './pages/MyOrders';
+import UserDashboard from './pages/UserDashboard';
 import HowItWorks from './pages/HowItWorks';
 import Dashboard from './pages/Dashboard';
 import Cooks from './pages/Cooks';
@@ -38,6 +39,8 @@ function App() {
               <Route path="/orders" element={<Orders />} />
               <Route path="/safety" element={<Safety />} />
               <Route path="/cooks/:id" element={<CookProfile />} />
+              <Route path="/my-orders" element={<MyOrders />} />
+              <Route path="/user-dashboard" element={<UserDashboard />} />
             </Routes>
           </main>
           

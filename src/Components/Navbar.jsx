@@ -61,12 +61,6 @@ const scrollToSection = (id) => {
         {/* Desktop Buttons */}
         <div className="flex items-center gap-4">
           <Link 
-            to="/browse" 
-            className="hidden sm:flex w-10 h-10 items-center justify-center rounded-full bg-white/80 hover:bg-white transition-colors border border-dark/10"
-          >
-            <i className="fas fa-search text-dark text-sm"></i>
-          </Link>
-          <Link 
             to="/login" 
             className="bg-mustard hover:bg-mustard/90 text-dark px-5 py-2.5 rounded-full font-medium text-sm transition-all"
           >
@@ -77,7 +71,7 @@ const scrollToSection = (id) => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden w-10 h-10 flex items-center justify-center rounded-full bg-white/80 border border-dark/10"
           >
-            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-dark`}></i>
+            <i className={`fas ${isMenuOpen ? 'fa-times' : 'fa-bars'} text-dark text-xl`}></i>
           </button>
         </div>
       </div>
@@ -91,7 +85,6 @@ const scrollToSection = (id) => {
           <Link to="/how-it-works" className="text-lg font-medium py-2">How it works</Link>
           <Link to="/cooks" className="text-lg font-medium py-2">Cooks</Link>
           <Link to="/safety" className="text-lg font-medium py-2">Safety</Link>
-          <Link to="/login" className="text-lg font-medium py-2">Sign in</Link>
         </div>
       </div>
     </nav>
