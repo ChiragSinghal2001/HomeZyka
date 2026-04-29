@@ -87,12 +87,19 @@ export default function CookProfile() {
                   </div>
                 </div>
 
-                {currentUser?.id === cook.id && (
+                {currentUser?.id === cook.id ? (
                   <button 
                     onClick={() => setIsEditModalOpen(true)}
                     className="w-full border border-dark/10 py-4 rounded-full font-bold flex items-center justify-center gap-2 hover:bg-warm-white transition-all"
                   >
                     <i className="fas fa-edit"></i> Edit Profile
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => alert(`Messaging ${cook.name} functionality coming soon!`)}
+                    className="w-full bg-mustard hover:bg-mustard/90 text-dark py-4 rounded-full font-bold flex items-center justify-center gap-2 transition-all shadow-sm"
+                  >
+                    <i className="far fa-comment-dots"></i> Message {cook.name}
                   </button>
                 )}
               </div>
