@@ -19,21 +19,36 @@ export default function SignupCook() {
   const navigate = useNavigate();
   const { setCurrentUser } = useApp();
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    const userData = {
-      ...formData,
-      name: formData.fullName,
-      avatar: 'https://images.unsplash.com/photo-1577214459173-bb3155160867?w=400',
-      isVerified: false,
-      rating: 0,
-      reviewCount: 0
-    };
-    setCurrentUser(userData);
-    localStorage.setItem('homezayka_user', JSON.stringify(userData));
-    
-    alert('Cook account created successfully!');
-    navigate('/dashboard');
+    try {
+      const res = await fetch('http://localhost:8080/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.fullName,
+          email: formData.email,
+          password: formData.password,
+          role: 'cook',
+          phone: formData.phone,
+          address: formData.address,
+          bio: formData.bio
+        })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        setCurrentUser(data.user);
+        localStorage.setItem('homezayka_user', JSON.stringify(data.user));
+        localStorage.setItem('homezayka_token', data.token);
+        alert('Cook account created successfully!');
+        navigate('/dashboard');
+      } else {
+        alert(data.message || 'Signup failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    }
   };
 
   return (

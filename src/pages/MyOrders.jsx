@@ -6,50 +6,36 @@ export default function MyOrders() {
   const { users, meals } = useApp();
   const [activeTab, setActiveTab] = useState('Active');
 
-  // Mock data representing orders placed by the user
-  const mockOrders = [
-    {
-      id: 'ORD001',
-      mealId: 'm1', 
-      cookId: 'u1', 
-      portions: 2,
-      totalPrice: 440,
-      pickupTime: 'Today, 12:30 PM',
-      status: 'Pending', 
-      orderDate: 'Apr 1, 2026',
-    },
-    {
-      id: 'ORD002',
-      mealId: 'm2', 
-      cookId: 'u2', 
-      portions: 1,
-      totalPrice: 320,
-      pickupTime: 'Today, 7:00 PM',
-      status: 'Confirmed', 
-      orderDate: 'Apr 1, 2026',
-    },
-    {
-      id: 'ORD003',
-      mealId: 'm3', 
-      cookId: 'u1',
-      portions: 3,
-      totalPrice: 540,
-      pickupTime: 'Mar 30, 1:00 PM',
-      status: 'Completed', 
-      orderDate: 'Mar 30, 2026',
-    },
-  ];
+  const [orders, setOrders] = useState([]);
 
-  // Helper functions to fetch related data
-  const getMeal = (id) => meals.find(m => m.id === id);
-  const getCook = (id) => users.find(u => u.id === id);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      const token = localStorage.getItem('homezayka_token');
+      if (!token) return;
+      try {
+        const res = await fetch('http://localhost:8080/api/orders/myorders', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (res.ok) setOrders(data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchOrders();
+  }, []);
+
+  // Helper functions to fetch related data from state (fallback if populate failed or using mock)
+  const getMeal = (id) => meals.find(m => m.id === id || m._id === id);
+  const getCook = (id) => users.find(u => u.id === id || u._id === id);
 
   // Logic to filter orders by the selected tab
-  const filteredOrders = mockOrders.filter(order => {
+  const filteredOrders = orders.filter(order => {
+    const status = order.status.charAt(0).toUpperCase() + order.status.slice(1); // 'pending' -> 'Pending'
     if (activeTab === 'Active') {
-      return order.status === 'Pending' || order.status === 'Confirmed';
+      return status === 'Pending' || status === 'Confirmed';
     }
-    return order.status === activeTab; 
+    return status === activeTab; 
   });
 
   // Dynamic styling for status badges
@@ -95,8 +81,8 @@ export default function MyOrders() {
       <div className="max-w-5xl mx-auto space-y-6">
         {filteredOrders.length > 0 ? (
           filteredOrders.map(order => {
-            const meal = getMeal(order.mealId);
-            const cook = getCook(order.cookId);
+            const meal = order.mealId?._id ? order.mealId : getMeal(order.mealId);
+            const cook = order.cookId?._id ? order.cookId : getCook(order.cookId);
             return (
               <div 
                 key={order.id} 
@@ -139,10 +125,9 @@ export default function MyOrders() {
                   </div>
                 </div>
                 
-                {/* Action Button */}
                 <div className="md:ml-4">
                   <Link 
-                    to={`/meal/${order.mealId}`}
+                    to={`/meal/${meal?._id || meal?.id}`}
                     className="block text-center px-6 py-3 rounded-full border border-dark/10 text-xs font-bold hover:bg-warm-white transition-colors"
                   >
                     View Meal

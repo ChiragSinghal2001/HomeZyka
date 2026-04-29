@@ -1,18 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import MealCard from '../Components/MealCard';
 import EditProfileModal from '../Components/EditProfileModal';
 
 export default function CookProfile() {
+
   const { id } = useParams();
   const { users, meals, currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('Meals');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [cookReviews, setCookReviews] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   // Find the cook from our data, or use currentUser if they are viewing their own profile
-  const cook = (currentUser?.id === id) ? currentUser : users.find(u => u.id === id);
-  const cookMeals = meals.filter(m => m.cookId === id);
+  const cook = (currentUser?.id === id) ? currentUser : users.find(u => u.id === id || u._id === id);
+  const cookMeals = meals.filter(m => m.cookId === id || m.cookId?._id === id);
+
+  useEffect(() => {
+    if (activeTab === 'Reviews') {
+      setLoadingReviews(true);
+      fetch(`http://localhost:8080/api/reviews/cook/${id}`)
+        .then(res => res.json())
+        .then(data => {
+          setCookReviews(data);
+        })
+        .catch(() => setCookReviews([]))
+        .finally(() => setLoadingReviews(false));
+    }
+  }, [activeTab, id]);
 
   if (!cook) return <div className="pt-32 text-center">Cook not found</div>;
 
@@ -139,20 +155,32 @@ export default function CookProfile() {
               {activeTab === 'Reviews' && (
                 <div>
                   <h2 className="font-display text-2xl mb-6">Customer Reviews</h2>
-                  <div className="space-y-4">
-                    <div className="bg-white p-6 rounded-2xl border border-dark/5 shadow-sm">
-                      <div className="flex items-center gap-4 mb-3">
-                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" className="w-10 h-10 rounded-full" alt="Riya" />
-                        <div>
-                          <p className="font-bold text-sm">Riya</p>
-                          <div className="flex text-mustard text-xs">
-                            {[1,2,3,4,5].map(i => <i key={i} className="fas fa-star"></i>)}
+                  {loadingReviews ? (
+                    <div className="text-center text-gray-text py-10">Loading reviews...</div>
+                  ) : cookReviews.length === 0 ? (
+                    <div className="text-center text-gray-text py-10">No reviews yet.</div>
+                  ) : (
+                    <div className="space-y-4">
+                      {cookReviews.map(review => (
+                        <div key={review._id} className="bg-white p-6 rounded-2xl border border-dark/5 shadow-sm flex items-center gap-4">
+                          <img src={review.customerId?.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'} className="w-10 h-10 rounded-full" alt={review.customerId?.name || 'User'} />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-bold text-dark">{review.customerId?.name || 'User'}</span>
+                              <span className="text-xs text-gray-text">on <span className="font-medium">{review.mealId?.title || 'Meal'}</span></span>
+                            </div>
+                            <div className="flex gap-1 text-mustard mb-1">
+                              {[...Array(5)].map((_, i) => (
+                                <i key={i} className={`fas fa-star ${i < review.rating ? '' : 'opacity-30'}`}></i>
+                              ))}
+                            </div>
+                            <p className="text-gray-text italic">"{review.text}"</p>
                           </div>
+                          <span className="text-xs text-gray-text">{new Date(review.createdAt).toLocaleDateString()}</span>
                         </div>
-                      </div>
-                      <p className="text-gray-text italic">"Amazing food! Will definitely order again."</p>
+                      ))}
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
             </div>

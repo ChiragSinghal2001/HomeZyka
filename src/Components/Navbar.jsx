@@ -14,6 +14,7 @@ export default function Navbar() {
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem('homezayka_user');
+    localStorage.removeItem('homezayka_token');
     navigate('/');
   };
 

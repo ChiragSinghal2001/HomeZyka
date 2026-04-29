@@ -3,7 +3,7 @@ export default function MealCard({ meal, cook }) {
   const navigate = useNavigate();
 
   const handleCardClick = () => {
-    navigate(`/meal/${meal.id}`);
+    navigate(`/meal/${meal?._id || meal?.id}`);
   };
   return (
     

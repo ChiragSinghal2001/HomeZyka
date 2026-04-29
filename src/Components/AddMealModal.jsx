@@ -14,26 +14,46 @@ export default function AddMealModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const newMeal = {
-      id: 'm' + Date.now(),
-      title: formData.title,
-      description: formData.description,
-      price: parseInt(formData.price),
-      cookId: currentUser.id,
-      images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'],
-      rating: 0,
-      reviews: 0,
-      category: formData.category,
-      dietary: formData.dietary,
-      ingredients: ['Fresh ingredients', 'Love and Spices'],
-      portionsAvailable: parseInt(formData.portions)
-    };
+    try {
+      const token = localStorage.getItem('homezayka_token');
+      if (!token) return alert('Not authenticated');
 
-    addMeal(newMeal);
-    onClose();
-    setFormData({ title: '', price: '', description: '', category: 'North Indian', dietary: 'Veg', portions: '2' });
+      const mealData = {
+        title: formData.title,
+        description: formData.description,
+        price: parseInt(formData.price),
+        category: formData.category,
+        cuisine: formData.category,
+        dietary: [formData.dietary],
+        portionsAvailable: parseInt(formData.portions),
+        portionsTotal: parseInt(formData.portions),
+        images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'],
+      };
+
+      const res = await fetch('http://localhost:8080/api/meals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(mealData)
+      });
+      
+      const data = await res.json();
+      if (res.ok) {
+        addMeal(data);
+        onClose();
+        setFormData({ title: '', price: '', description: '', category: 'North Indian', dietary: 'Veg', portions: '2' });
+        alert('Meal added successfully!');
+      } else {
+        alert(data.message || 'Failed to add meal');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    }
   };
 
   return (

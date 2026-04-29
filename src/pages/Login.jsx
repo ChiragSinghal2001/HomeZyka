@@ -164,6 +164,7 @@ export default function Login() {
     
     setCurrentUser(userData);
     localStorage.setItem('homezayka_user', JSON.stringify(userData));
+    localStorage.removeItem('homezayka_token');
     
     // Reroute based on role
     if (userRole === 'cook') {
@@ -173,15 +174,27 @@ export default function Login() {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const isCook = email.includes('cook');
-    performLogin(
-      email, 
-      isCook ? 'cook' : 'customer', 
-      isCook ? 'Demo Cook' : 'Demo Customer',
-      isCook ? 'u1' : 'u2'
-    );
+    try {
+      const res = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        setCurrentUser(data.user);
+        localStorage.setItem('homezayka_user', JSON.stringify(data.user));
+        localStorage.setItem('homezayka_token', data.token);
+        navigate(data.user.role === 'cook' ? '/dashboard' : '/user-dashboard');
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    }
   };
 
   return (

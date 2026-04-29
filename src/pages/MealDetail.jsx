@@ -22,30 +22,47 @@ export default function MealDetail() {
   });
   const [errors, setErrors] = useState({});
 
-  const meal = meals.find(m => m.id === id);
-  const cook = meal ? getCookById(meal.cookId) : null;
+  const meal = meals.find(m => m.id === id || m._id === id);
+  const cook = meal ? getCookById(meal.cookId?._id || meal.cookId?.id || meal.cookId) : null;
 
   if (!meal) return <div className="pt-32 text-center font-display text-2xl text-dark">Meal not found</div>;
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!customerDetails.fullName.trim() || customerDetails.fullName.length < 2) {
-      newErrors.fullName = 'Please enter a valid name (min 2 chars)';
-    }
-    if (!customerDetails.phone || !/^[0-9]{10}$/.test(customerDetails.phone)) {
-      newErrors.phone = 'Please enter a valid 10-digit phone number';
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleFinalConfirm = (e) => {
+  const handleFinalConfirm = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
     
-    // Here you would typically save the order to your context/database
-    alert(`Order for ${meal.title} placed successfully!`);
-    navigate('/my-orders');
+    try {
+      const token = localStorage.getItem('homezayka_token');
+      if (!token || token === 'undefined') {
+        alert("Please login to place an order");
+        navigate('/login');
+        return;
+      }
+      
+      const res = await fetch('http://localhost:8080/api/orders', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          mealId: meal._id || meal.id,
+          cookId: cook._id || cook.id,
+          portions: portionCount,
+          totalPrice: meal.price * portionCount,
+          pickupTime: { date: new Date().toISOString().split('T')[0], startTime: selectedTime.split(', ')[1] || selectedTime }
+        })
+      });
+      const data = await res.json();
+      if(res.ok) {
+        alert(`Order for ${meal.title} placed successfully!`);
+        navigate('/my-orders');
+      } else {
+        alert(data.message || 'Order failed');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error');
+    }
   };
 
   // If showConfirm is true, render the Booking Form instead of Meal Details
@@ -62,78 +79,44 @@ export default function MealDetail() {
 
           <div className="text-center mb-10">
             <h1 className="font-display text-4xl text-dark mb-3">Confirm Booking</h1>
-            <p className="text-gray-text">Finalize your order for <span className="text-dark font-bold">{meal.title}</span></p>
+            <p className="text-gray-text">Are you sure you want to book <span className="text-dark font-bold">{meal.title}</span>?</p>
           </div>
 
-          <form onSubmit={handleFinalConfirm} className="space-y-6" noValidate>
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-dark px-1">Full Name <span className="text-tomato">*</span></label>
-              <div className="relative">
-                <i className="fas fa-user absolute left-5 top-1/2 -translate-y-1/2 text-gray-text"></i>
-                <input 
-                  type="text" 
-                  placeholder="Enter your name"
-                  className={`w-full pl-14 pr-6 py-4 rounded-2xl bg-warm-white/50 border outline-none transition-all ${
-                    errors.fullName ? 'border-tomato/50 focus:border-tomato focus:ring-1 focus:ring-tomato/20' : 'border-transparent focus:border-mustard focus:ring-2 focus:ring-mustard/20'
-                  }`}
-                  value={customerDetails.fullName}
-                  onChange={(e) => {
-                    setCustomerDetails({...customerDetails, fullName: e.target.value});
-                    if (errors.fullName) setErrors({...errors, fullName: null});
-                  }}
-                />
+          <form onSubmit={handleFinalConfirm} className="space-y-8" noValidate>
+            
+            <div className="bg-warm-white/50 p-8 rounded-3xl space-y-4 border border-dark/5">
+              <div className="flex justify-between items-center border-b border-dark/5 pb-4">
+                <span className="text-gray-text font-medium">Meal</span>
+                <span className="font-bold text-dark">{meal.title}</span>
               </div>
-              {errors.fullName && <p className="text-xs text-tomato px-1">{errors.fullName}</p>}
-            </div>
-
-            <div className="space-y-1">
-              <label className="text-sm font-semibold text-dark px-1">Phone Number <span className="text-tomato">*</span></label>
-              <div className="relative">
-                <i className="fas fa-phone absolute left-5 top-1/2 -translate-y-1/2 text-gray-text"></i>
-                <input 
-                  type="tel" 
-                  maxLength="10"
-                  placeholder="e.g. 9876543210"
-                  className={`w-full pl-14 pr-6 py-4 rounded-2xl bg-warm-white/50 border outline-none transition-all ${
-                    errors.phone ? 'border-tomato/50 focus:border-tomato focus:ring-1 focus:ring-tomato/20' : 'border-transparent focus:border-mustard focus:ring-2 focus:ring-mustard/20'
-                  }`}
-                  value={customerDetails.phone}
-                  onChange={(e) => {
-                    setCustomerDetails({...customerDetails, phone: e.target.value});
-                    if (errors.phone) setErrors({...errors, phone: null});
-                  }}
-                />
+              <div className="flex justify-between items-center border-b border-dark/5 pb-4">
+                <span className="text-gray-text font-medium">Cook</span>
+                <span className="font-bold text-dark">{cook?.name}</span>
               </div>
-              {errors.phone && <p className="text-xs text-tomato px-1">{errors.phone}</p>}
+              <div className="flex justify-between items-center border-b border-dark/5 pb-4">
+                <span className="text-gray-text font-medium">Pickup Time</span>
+                <span className="font-bold text-dark">{selectedTime}</span>
+              </div>
+              <div className="flex justify-between items-center pb-2">
+                <span className="text-gray-text font-medium">Portions</span>
+                <span className="font-bold text-dark">{portionCount}</span>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-dark px-1">Pickup Notes (Optional)</label>
-              <textarea 
-                placeholder="Any special instructions for the cook?"
-                className="w-full p-6 rounded-2xl bg-warm-white/50 border-none focus:ring-2 focus:ring-mustard outline-none transition-all h-32 resize-none"
-                value={customerDetails.notes}
-                onChange={(e) => setCustomerDetails({...customerDetails, notes: e.target.value})}
-              />
-            </div>
-
-            <div className="bg-warm-white/50 p-6 rounded-2xl flex justify-between items-center">
+            <div className="bg-mustard/10 p-6 rounded-2xl flex justify-between items-center">
               <div>
-                <p className="text-xs text-gray-text uppercase font-bold tracking-widest">Total to pay</p>
-                <p className="font-display text-3xl text-dark">₹{meal.price * portionCount}</p>
-              </div>
-              <div className="text-right text-sm text-gray-text">
-                <p>{portionCount} Portion(s)</p>
-                <p>{selectedTime}</p>
+                <p className="text-xs text-dark uppercase font-bold tracking-widest">Total to pay</p>
+                <p className="font-display text-4xl text-dark mt-1">₹{meal.price * portionCount}</p>
               </div>
             </div>
 
             <button 
               type="submit"
-              className="w-full bg-mustard hover:bg-mustard/90 text-dark py-5 rounded-full font-bold text-xl transition-all shadow-md active:scale-95"
+              className="w-full bg-mustard hover:bg-mustard/90 text-dark py-5 rounded-full font-bold text-xl transition-all shadow-md active:scale-95 flex items-center justify-center gap-2"
             >
-              Confirm & Pay After Pickup <i className="fas fa-arrow-right ml-2"></i>
+              Confirm Order <i className="fas fa-check-circle"></i>
             </button>
+            <p className="text-center text-xs text-gray-text">Pay the cook directly when you pick up your meal.</p>
           </form>
         </div>
       </main>
@@ -287,7 +270,15 @@ export default function MealDetail() {
                       <p className="text-xs text-gray-text line-through">₹{(meal.price + 20) * portionCount}</p>
                     </div>
                     <button 
-                      onClick={() => setShowConfirm(true)}
+                      onClick={() => {
+                        const token = localStorage.getItem('homezayka_token');
+                        if (!token || token === 'undefined') {
+                          alert("You need to login first to book a meal!");
+                          navigate('/login');
+                        } else {
+                          setShowConfirm(true);
+                        }
+                      }}
                       className="w-full bg-mustard hover:bg-mustard/90 text-dark py-5 rounded-full font-bold text-lg shadow-md transition-transform active:scale-95"
                     >
                       Book Now
