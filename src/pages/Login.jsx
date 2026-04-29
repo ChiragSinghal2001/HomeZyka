@@ -141,6 +141,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import logo from '../assets/logo.jpg';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -150,13 +151,14 @@ export default function Login() {
   const { setCurrentUser } = useApp();
 
   // Unified login logic for both form submission and demo buttons
-  const performLogin = (userEmail, userRole, userName) => {
+  const performLogin = (userEmail, userRole, userName, userId) => {
     const userData = {
+      id: userId || 'user_' + Date.now(),
       email: userEmail,
       role: userRole,
       name: userName,
       avatar: userRole === 'cook' 
-        ? 'https://images.unsplash.com/photo-1577214459173-bb3155160867?w=400' 
+        ? 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=400&h=400&fit=crop' 
         : 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400',
     };
     
@@ -177,17 +179,15 @@ export default function Login() {
     performLogin(
       email, 
       isCook ? 'cook' : 'customer', 
-      isCook ? 'Demo Cook' : 'Demo Customer'
+      isCook ? 'Demo Cook' : 'Demo Customer',
+      isCook ? 'u1' : 'u2'
     );
   };
 
   return (
     <div className="min-h-screen bg-warm-white flex flex-col items-center justify-center py-12 px-4">
       <Link to="/" className="flex items-center gap-3 mb-10 group">
-        <div className="w-12 h-12 bg-mustard rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
-          <i className="fas fa-hat-chef text-dark text-xl"></i>
-        </div>
-        <span className="font-display text-4xl text-dark">HomeZayka</span>
+        <img src={logo} alt="HomeZayka" className="h-16 w-auto rounded-2xl shadow-sm object-cover transition-transform group-hover:scale-105" />
       </Link>
 
       <div className="bg-white rounded-[3rem] p-10 shadow-sm w-full max-w-lg border border-dark/5">
@@ -250,14 +250,14 @@ export default function Login() {
         <div className="grid grid-cols-2 gap-4 mb-8">
           <button 
             type="button"
-            onClick={() => performLogin('cook@example.com', 'cook', 'Aman (Cook)')}
+            onClick={() => performLogin('cook@example.com', 'cook', 'Aman (Cook)', 'u1')}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-dark/10 hover:bg-mustard hover:text-dark hover:border-mustard transition-all font-bold text-sm"
           >
             <i className="fas fa-hat-chef text-xs"></i> Demo Cook
           </button>
           <button 
             type="button"
-            onClick={() => performLogin('customer@example.com', 'customer', 'Shabana (User)')}
+            onClick={() => performLogin('customer@example.com', 'customer', 'Shabana (User)', 'u2')}
             className="flex items-center justify-center gap-2 px-6 py-4 rounded-2xl border border-dark/10 hover:bg-mustard hover:text-dark hover:border-mustard transition-all font-bold text-sm"
           >
             <i className="fas fa-user text-xs"></i> Demo User
