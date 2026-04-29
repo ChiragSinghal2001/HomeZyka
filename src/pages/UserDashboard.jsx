@@ -1,15 +1,23 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Link } from 'react-router-dom';
+import EditProfileModal from '../Components/EditProfileModal';
 
 export default function UserDashboard() {
   const { currentUser, meals } = useApp();
   const [activeTab, setActiveTab] = useState('My Orders');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Mock orders for the dashboard view
   const userOrders = [
     { id: 'ORD-101', mealId: 'm1', status: 'Confirmed', price: 240, date: '2024-02-07' },
     { id: 'ORD-102', mealId: 'm2', status: 'Pending', price: 560, date: '2024-02-07' }
+  ];
+
+  // Mock reviews for the activity tab
+  const userReviews = [
+    { id: 'rev-1', mealId: 'm1', rating: 5, date: '2024-01-15', text: 'Absolutely delicious! The biryani was perfectly spiced and the meat was very tender. Will definitely order again.' },
+    { id: 'rev-2', mealId: 'm3', rating: 4, date: '2024-01-02', text: 'Great pasta, though a little bit heavy on the cream. Still really enjoyed it for a weekend dinner.' }
   ];
 
   const getMeal = (id) => meals.find(m => m.id === id);
@@ -46,7 +54,7 @@ export default function UserDashboard() {
               </div>
 
               <p className="text-gray-text text-sm leading-relaxed mb-10 text-center lg:text-left">
-                I cook the way I feed my family—fresh spices, honest portions, and a lot of care. Try my biryani on Fridays.
+                {currentUser?.bio || 'Passionate about good food and community.'}
               </p>
 
               <div className="h-[1px] bg-dark/5 w-full mb-8"></div>
@@ -71,19 +79,22 @@ export default function UserDashboard() {
               <div className="space-y-5 mb-10">
                 <div className="flex items-center gap-4 text-sm text-gray-text">
                   <i className="fas fa-map-marker-alt w-5 text-center"></i>
-                  <span>Greenfield Colony, Block A</span>
+                  <span>{currentUser?.address || 'Address not provided'}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-text">
                   <i className="fas fa-envelope w-5 text-center"></i>
-                  <span>shabana@homezayka.in</span>
+                  <span>{currentUser?.email || 'Email not provided'}</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-text">
                   <i className="fas fa-phone-alt w-5 text-center"></i>
-                  <span>+91-98765-43203</span>
+                  <span>{currentUser?.phone || 'Phone not provided'}</span>
                 </div>
               </div>
 
-              <button className="w-full border border-dark/10 py-4 rounded-full font-bold text-dark hover:bg-warm-white transition-all shadow-sm">
+              <button 
+                onClick={() => setIsEditModalOpen(true)}
+                className="w-full border border-dark/10 py-4 rounded-full font-bold text-dark hover:bg-warm-white transition-all shadow-sm"
+              >
                 Edit Profile
               </button>
             </div>
@@ -107,7 +118,9 @@ export default function UserDashboard() {
           </div>
 
           <div className="bg-white rounded-[2.5rem] p-8 border border-dark/5 shadow-sm min-h-[500px]">
-             <h2 className="font-display text-3xl mb-8">Current Activity</h2>
+             <h2 className="font-display text-3xl mb-8">
+               {activeTab === 'Activity' ? 'My Reviews' : activeTab}
+             </h2>
              
              {activeTab === 'My Orders' && (
                <div className="space-y-4">
@@ -136,15 +149,45 @@ export default function UserDashboard() {
                </div>
              )}
 
-             {activeTab !== 'My Orders' && (
+             {activeTab === 'Activity' && (
+               <div className="space-y-4">
+                 {userReviews.map(review => {
+                   const meal = getMeal(review.mealId);
+                   return (
+                     <div key={review.id} className="p-5 bg-[#F9F8F4] rounded-3xl border border-dark/5">
+                        <div className="flex items-center gap-4 mb-3">
+                           <img src={meal?.images[0]} className="w-12 h-12 rounded-xl object-cover" alt="" />
+                           <div>
+                              <p className="font-bold text-dark text-sm">Reviewed: {meal?.title}</p>
+                              <p className="text-xs text-gray-text">{review.date}</p>
+                           </div>
+                        </div>
+                        <div className="flex text-mustard text-xs mb-2">
+                          {[...Array(5)].map((_, i) => (
+                            <i key={i} className={`fa${i < review.rating ? 's' : 'r'} fa-star mr-0.5`}></i>
+                          ))}
+                        </div>
+                        <p className="text-sm text-dark italic">"{review.text}"</p>
+                     </div>
+                   );
+                 })}
+               </div>
+             )}
+
+             {activeTab === 'Saved Meals' && (
                <div className="text-center py-20 text-gray-text italic">
-                  No {activeTab.toLowerCase()} found.
+                  No saved meals found.
                </div>
              )}
           </div>
         </div>
 
       </div>
+      <EditProfileModal 
+        isOpen={isEditModalOpen} 
+        onClose={() => setIsEditModalOpen(false)} 
+        user={currentUser} 
+      />
     </main>
   );
 }
