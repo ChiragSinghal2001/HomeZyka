@@ -99,7 +99,7 @@ const scrollToSection = (id) => {
                   </Link>
                   {currentUser.role === 'cook' && (
                     <Link 
-                      to={`/cooks/${currentUser.id}`} 
+                      to={`/cooks/${currentUser._id || currentUser.id}`} 
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-dark hover:bg-warm-white transition-colors"
                     >

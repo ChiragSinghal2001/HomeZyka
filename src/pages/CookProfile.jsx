@@ -14,21 +14,30 @@ export default function CookProfile() {
   const [loadingReviews, setLoadingReviews] = useState(false);
 
   // Find the cook from our data, or use currentUser if they are viewing their own profile
-  const cook = (currentUser?.id === id) ? currentUser : users.find(u => u.id === id || u._id === id);
+  const cook = (currentUser?.id === id || currentUser?._id === id) ? currentUser : users.find(u => u.id === id || u._id === id);
   const cookMeals = meals.filter(m => m.cookId === id || m.cookId?._id === id);
 
   useEffect(() => {
-    if (activeTab === 'Reviews') {
-      setLoadingReviews(true);
-      fetch(`http://localhost:8080/api/reviews/cook/${id}`)
-        .then(res => res.json())
-        .then(data => {
+    setLoadingReviews(true);
+    fetch(`http://localhost:8080/api/reviews/cook/${id}`)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
           setCookReviews(data);
-        })
-        .catch(() => setCookReviews([]))
-        .finally(() => setLoadingReviews(false));
-    }
-  }, [activeTab, id]);
+        } else {
+          setCookReviews([]);
+        }
+      })
+      .catch(() => setCookReviews([]))
+      .finally(() => setLoadingReviews(false));
+  }, [id]);
+
+  const validReviews = Array.isArray(cookReviews) ? cookReviews : [];
+  const averageRating = validReviews.length > 0 
+    ? (validReviews.reduce((acc, curr) => acc + (curr.rating || 0), 0) / validReviews.length).toFixed(1) 
+    : (cook?.rating || 0);
+
+  const totalReviews = validReviews.length > 0 ? validReviews.length : (cook?.reviewCount || 0);
 
   if (!cook) return <div className="pt-32 text-center">Cook not found</div>;
 
@@ -74,11 +83,11 @@ export default function CookProfile() {
                 {/* Stats Grid */}
                 <div className="grid grid-cols-3 gap-4 py-6 border-y border-dark/5 mb-8">
                   <div className="text-center">
-                    <p className="font-display text-xl text-dark">{cook.rating}</p>
+                    <p className="font-display text-xl text-dark">{averageRating}</p>
                     <p className="text-[10px] uppercase text-gray-text tracking-widest">Rating</p>
                   </div>
                   <div className="text-center border-x border-dark/5">
-                    <p className="font-display text-xl text-dark">{cook.reviewCount}</p>
+                    <p className="font-display text-xl text-dark">{totalReviews}</p>
                     <p className="text-[10px] uppercase text-gray-text tracking-widest">Reviews</p>
                   </div>
                   <div className="text-center">
@@ -146,7 +155,7 @@ export default function CookProfile() {
                   <h2 className="font-display text-2xl mb-6">Meals by this cook</h2>
                   <div className="grid md:grid-cols-2 gap-6">
                     {cookMeals.map(meal => (
-                      <MealCard key={meal.id} meal={meal} cook={cook} />
+                      <MealCard key={meal._id || meal.id} meal={meal} cook={cook} />
                     ))}
                   </div>
                 </div>

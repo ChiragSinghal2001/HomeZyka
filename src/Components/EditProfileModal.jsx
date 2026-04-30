@@ -13,6 +13,7 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
   });
   
   const [errors, setErrors] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -38,6 +39,22 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setErrors(prev => ({ ...prev, avatar: 'Image must be less than 10MB' }));
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, avatar: reader.result }));
+        setErrors(prev => ({ ...prev, avatar: null }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const validateForm = () => {
     const newErrors = {};
     if (!formData.name.trim() || formData.name.length < 2) {
@@ -49,22 +66,39 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
     if (!formData.address.trim() || formData.address.length < 10) {
       newErrors.address = 'Please provide a valid address (min 10 chars)';
     }
-    if (formData.avatar && !/^https?:\/\/.+/.test(formData.avatar)) {
-      newErrors.avatar = 'Please provide a valid image URL';
+    if (formData.avatar && !/^https?:\/\/.+/.test(formData.avatar) && !formData.avatar.startsWith('data:image/')) {
+      newErrors.avatar = 'Please provide a valid image';
     }
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
     
-    const updatedUser = { ...user, ...formData };
-    setCurrentUser(updatedUser);
-    localStorage.setItem('homezayka_user', JSON.stringify(updatedUser));
-    onClose();
+    setIsSaving(true);
+    try {
+      const response = await fetch(`http://localhost:8080/api/users/${user._id || user.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (!response.ok) throw new Error('Failed to update profile');
+      
+      const updatedUser = await response.json();
+      setCurrentUser(updatedUser);
+      localStorage.setItem('homezayka_user', JSON.stringify(updatedUser));
+      onClose();
+    } catch (err) {
+      setErrors(prev => ({ ...prev, submit: err.message }));
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -133,19 +167,19 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
             </div>
 
             <div className="space-y-1">
-              <label className="text-sm font-semibold text-dark px-1">Avatar Image URL</label>
-              <div className="relative">
-                <i className="fas fa-image absolute left-4 top-1/2 -translate-y-1/2 text-gray-text"></i>
-                <input 
-                  type="url" 
-                  name="avatar"
-                  value={formData.avatar}
-                  onChange={handleChange}
-                  placeholder="https://example.com/image.jpg"
-                  className={`w-full pl-12 pr-4 py-3 rounded-xl bg-warm-white/50 border outline-none transition-all text-sm ${
-                    errors.avatar ? 'border-tomato/50 focus:border-tomato focus:ring-1 focus:ring-tomato/20' : 'border-transparent focus:border-mustard focus:ring-2 focus:ring-mustard/20'
-                  }`}
-                />
+              <label className="text-sm font-semibold text-dark px-1">Profile Picture</label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full border-2 border-dark/10 overflow-hidden shrink-0">
+                  <img src={formData.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100'} alt="Avatar Preview" className="w-full h-full object-cover" />
+                </div>
+                <div className="relative flex-1">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="block w-full text-sm text-gray-text file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-mustard/10 file:text-dark hover:file:bg-mustard/20 transition-all cursor-pointer"
+                  />
+                </div>
               </div>
               {errors.avatar && <p className="text-xs text-tomato px-1">{errors.avatar}</p>}
             </div>
@@ -166,21 +200,27 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
           </form>
         </div>
 
-        <div className="p-6 border-t border-dark/5 bg-warm-white/30 flex justify-end gap-3">
-          <button 
-            type="button" 
-            onClick={onClose}
-            className="px-6 py-3 rounded-full font-bold text-dark hover:bg-dark/5 transition-all text-sm"
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit" 
-            form="edit-profile-form"
-            className="bg-mustard hover:bg-mustard/90 text-dark px-8 py-3 rounded-full font-bold transition-all text-sm shadow-sm"
-          >
-            Save Changes
-          </button>
+        <div className="p-6 border-t border-dark/5 bg-warm-white/30">
+          {errors.submit && <p className="text-xs text-tomato pb-3 text-right">{errors.submit}</p>}
+          <div className="flex justify-end gap-3">
+            <button 
+              type="button" 
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-6 py-3 rounded-full font-bold text-dark hover:bg-dark/5 transition-all text-sm disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button 
+              type="submit" 
+              form="edit-profile-form"
+              disabled={isSaving}
+              className="bg-mustard hover:bg-mustard/90 text-dark px-8 py-3 rounded-full font-bold transition-all text-sm shadow-sm flex items-center gap-2 disabled:opacity-70"
+            >
+              {isSaving && <i className="fas fa-spinner fa-spin"></i>}
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

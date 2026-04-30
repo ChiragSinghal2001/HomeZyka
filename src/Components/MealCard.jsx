@@ -28,7 +28,7 @@ export default function MealCard({ meal, cook }) {
         <h3 className="font-display text-2xl text-dark group-hover:text-mustard transition-colors">{meal.title}</h3>
         <p className="text-gray-text text-sm mt-2 line-clamp-2">{meal.description}</p>
         <div className="flex items-center gap-3 mt-4">
-          <img src={cook?.avatar} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" alt="" />
+          <img src={cook?.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(cook?.name || 'Cook')}&background=random`} className="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" alt="" />
           <div>
             <p className="text-sm font-medium text-dark">{cook?.name}</p>
             <div className="flex items-center gap-1 text-xs text-gray-text">

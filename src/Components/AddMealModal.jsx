@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { cuisines, categories, locations } from '../data/mockData';
 
 export default function AddMealModal({ isOpen, onClose }) {
   const { addMeal, currentUser } = useApp();
@@ -7,9 +8,14 @@ export default function AddMealModal({ isOpen, onClose }) {
     title: '',
     price: '',
     description: '',
-    category: 'North Indian',
+    cuisine: 'North Indian',
+    category: 'all',
     dietary: 'Veg',
-    portions: '2'
+    location: 'Agra',
+    portions: '2',
+    availableFrom: '',
+    availableTo: '',
+    imageStr: ''
   });
 
   if (!isOpen) return null;
@@ -24,12 +30,15 @@ export default function AddMealModal({ isOpen, onClose }) {
         title: formData.title,
         description: formData.description,
         price: parseInt(formData.price),
+        cuisine: formData.cuisine,
         category: formData.category,
-        cuisine: formData.category,
+        location: formData.location,
         dietary: [formData.dietary],
         portionsAvailable: parseInt(formData.portions),
         portionsTotal: parseInt(formData.portions),
-        images: ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'],
+        availableFrom: new Date(formData.availableFrom),
+        availableTo: new Date(formData.availableTo),
+        images: formData.imageStr ? [formData.imageStr] : ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'],
       };
 
       const res = await fetch('http://localhost:8080/api/meals', {
@@ -45,7 +54,7 @@ export default function AddMealModal({ isOpen, onClose }) {
       if (res.ok) {
         addMeal(data);
         onClose();
-        setFormData({ title: '', price: '', description: '', category: 'North Indian', dietary: 'Veg', portions: '2' });
+        setFormData({ title: '', price: '', description: '', cuisine: 'North Indian', category: 'all', dietary: 'Veg', location: 'Agra', portions: '2', availableFrom: '', availableTo: '', imageStr: '' });
         alert('Meal added successfully!');
       } else {
         alert(data.message || 'Failed to add meal');
@@ -53,6 +62,17 @@ export default function AddMealModal({ isOpen, onClose }) {
     } catch (err) {
       console.error(err);
       alert('Network error');
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData({ ...formData, imageStr: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -74,6 +94,16 @@ export default function AddMealModal({ isOpen, onClose }) {
               className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium mb-1 block">Meal Image</label>
+            <input 
+              type="file" 
+              accept="image/*"
+              className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard text-sm"
+              onChange={handleImageChange}
             />
           </div>
 
@@ -102,19 +132,27 @@ export default function AddMealModal({ isOpen, onClose }) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
+              <label className="text-sm font-medium mb-1 block">Cuisine</label>
+              <select 
+                className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard"
+                value={formData.cuisine}
+                onChange={(e) => setFormData({...formData, cuisine: e.target.value})}
+              >
+                {cuisines.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+            <div>
               <label className="text-sm font-medium mb-1 block">Category</label>
               <select 
                 className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard"
                 value={formData.category}
                 onChange={(e) => setFormData({...formData, category: e.target.value})}
               >
-                <option>North Indian</option>
-                <option>South Indian</option>
-                <option>Healthy</option>
-                <option>Snacks</option>
-                <option>Desserts</option>
+                {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
             </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium mb-1 block">Dietary</label>
               <select 
@@ -126,6 +164,39 @@ export default function AddMealModal({ isOpen, onClose }) {
                 <option>Non-Veg</option>
                 <option>Vegan</option>
               </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Location</label>
+              <select 
+                className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard"
+                value={formData.location}
+                onChange={(e) => setFormData({...formData, location: e.target.value})}
+              >
+                {locations.filter(loc => loc !== 'All Locations').map(loc => <option key={loc} value={loc}>{loc}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium mb-1 block">Available From</label>
+              <input 
+                type="datetime-local" 
+                required
+                className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard text-sm"
+                value={formData.availableFrom}
+                onChange={(e) => setFormData({...formData, availableFrom: e.target.value})}
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1 block">Available To</label>
+              <input 
+                type="datetime-local" 
+                required
+                className="w-full p-3 rounded-xl bg-warm-white border-none focus:ring-2 focus:ring-mustard text-sm"
+                value={formData.availableTo}
+                onChange={(e) => setFormData({...formData, availableTo: e.target.value})}
+              />
             </div>
           </div>
 

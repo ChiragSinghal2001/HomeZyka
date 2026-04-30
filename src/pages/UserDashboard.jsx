@@ -132,7 +132,7 @@ export default function UserDashboard() {
         {/* RIGHT SIDE: Dashboard Content */}
         <div className="flex-1 space-y-8">
           <div className="flex gap-4">
-            {['My Orders', 'Saved Meals', 'Activity'].map(tab => (
+            {['My Orders', 'Activity'].map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -233,11 +233,7 @@ export default function UserDashboard() {
               </div>
             )}
 
-             {activeTab === 'Saved Meals' && (
-               <div className="text-center py-20 text-gray-text italic">
-                  No saved meals found.
-               </div>
-             )}
+
           </div>
         </div>
 

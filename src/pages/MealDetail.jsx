@@ -11,7 +11,7 @@ export default function MealDetail() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [activeTab, setActiveTab] = useState('Book');
   const [portionCount, setPortionCount] = useState(1);
-  const [selectedTime, setSelectedTime] = useState('Today, 12:30');
+  const [selectedTime, setSelectedTime] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Form States
@@ -24,6 +24,29 @@ export default function MealDetail() {
 
   const meal = meals.find(m => m.id === id || m._id === id);
   const cook = meal ? getCookById(meal.cookId?._id || meal.cookId?.id || meal.cookId) : null;
+
+  // Generate 30 min slots
+  const generateSlots = () => {
+    if (!meal?.availableFrom || !meal?.availableTo) return [];
+    const slots = [];
+    let current = new Date(meal.availableFrom);
+    const end = new Date(meal.availableTo);
+    
+    while (current <= end) {
+      const timeString = current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const dateString = current.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      slots.push(`${dateString}, ${timeString}`);
+      current.setMinutes(current.getMinutes() + 30);
+    }
+    return slots;
+  };
+  
+  const availableSlots = generateSlots();
+  
+  // Set default selected time once slots are generated
+  if (availableSlots.length > 0 && selectedTime === '') {
+    setSelectedTime(availableSlots[0]);
+  }
 
   if (!meal) return <div className="pt-32 text-center font-display text-2xl text-dark">Meal not found</div>;
 
@@ -238,16 +261,19 @@ export default function MealDetail() {
                 <div className="space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-300">
                   <div>
                     <p className="font-bold text-dark mb-4">Select pickup time</p>
-                    <div className="flex gap-3">
-                      {['Today, 12:30', 'Today, 19:00'].map(time => (
+                    <div className="flex gap-3 overflow-x-auto pb-2">
+                      {availableSlots.length > 0 ? availableSlots.map(time => (
                         <button 
                           key={time}
+                          type="button"
                           onClick={() => setSelectedTime(time)}
-                          className={`px-6 py-3 rounded-xl border flex items-center gap-2 text-xs font-bold transition-all ${selectedTime === time ? 'border-mustard bg-mustard/5 text-dark' : 'bg-white text-gray-text border-dark/10'}`}
+                          className={`px-6 py-3 rounded-xl border flex items-center gap-2 text-xs font-bold transition-all whitespace-nowrap ${selectedTime === time ? 'border-mustard bg-mustard/5 text-dark' : 'bg-white text-gray-text border-dark/10'}`}
                         >
                           <i className="far fa-calendar-check"></i> {time}
                         </button>
-                      ))}
+                      )) : (
+                        <p className="text-sm text-gray-text italic">No available slots for this meal.</p>
+                      )}
                     </div>
                   </div>
 

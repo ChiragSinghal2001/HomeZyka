@@ -53,7 +53,19 @@ export const AppProvider = ({ children }) => {
     // Load auth
     const storedUser = localStorage.getItem('homezayka_user');
     if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
+      const parsedUser = JSON.parse(storedUser);
+      setCurrentUser(parsedUser);
+      
+      // Fetch latest profile to ensure phone, address, etc. are up to date
+      fetch(`http://localhost:8080/api/users/${parsedUser._id || parsedUser.id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && !data.message) {
+            setCurrentUser(data);
+            localStorage.setItem('homezayka_user', JSON.stringify(data));
+          }
+        })
+        .catch(err => console.error("Failed to fetch latest user profile:", err));
     }
   }, []);
 

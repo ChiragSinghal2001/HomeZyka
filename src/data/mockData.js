@@ -17,7 +17,7 @@ export const categories = [
   { value: 'comfort', label: 'Comfort Food' },
 ];
 
-export const locations = ['All Locations', 'Greenfield Colony', 'Sunrise Apartments', 'Old Market Lane'];
+export const locations = ['All Locations', 'Agra', 'Hathras', 'Mathura'];
 
 
 export const mockUsers = [

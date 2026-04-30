@@ -15,12 +15,13 @@ export default function Browse() {
   });
 
   const filteredMeals = meals.filter(m => {
+    const isAvailable = m.portionsAvailable > 0;
     const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase()) || 
                           m.cuisine.toLowerCase().includes(search.toLowerCase());
     const matchesCuisine = filters.cuisine === 'All Cuisines' || m.cuisine === filters.cuisine;
     const matchesCategory = filters.category === 'all' || m.category === filters.category;
     const matchesLocation = filters.location === 'All Locations' || m.location === filters.location;
-    return matchesSearch && matchesCuisine && matchesCategory && matchesLocation;
+    return isAvailable && matchesSearch && matchesCuisine && matchesCategory && matchesLocation;
   });
   
   filteredMeals.sort((a, b) => {
@@ -137,7 +138,7 @@ export default function Browse() {
           </div>
           <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredMeals.map(meal => (
-              <MealCard key={meal.id} meal={meal} cook={getCookById(meal.cookId)} />
+              <MealCard key={meal._id || meal.id} meal={meal} cook={getCookById(meal.cookId?._id || meal.cookId) || (typeof meal.cookId === 'object' ? meal.cookId : null)} />
             ))}
           </div>
         </div>
