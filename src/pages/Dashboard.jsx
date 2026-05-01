@@ -45,6 +45,7 @@ import { useApp } from '../context/AppContext';
 import MealCard from '../Components/MealCard';
 import AddMealModal from '../Components/AddMealModal';
 
+import { API_URL } from '../config/api';
 export default function Dashboard() {
   const { meals, getCookById, currentUser } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -64,7 +65,7 @@ export default function Dashboard() {
     const token = localStorage.getItem('homezayka_token');
     if (!token || token === 'undefined') return;
     try {
-      const res = await fetch('http://localhost:8080/api/orders/myorders', {
+      const res = await fetch(`${API_URL}/orders/myorders`, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       const data = await res.json();
@@ -83,7 +84,7 @@ export default function Dashboard() {
     try {
       const cookId = currentUser._id || currentUser.id;
       console.log('Fetching reviews for cook ID:', cookId);
-      const res = await fetch(`http://localhost:8080/api/reviews/cook/${cookId}`);
+      const res = await fetch(`${API_URL}/reviews/cook/${cookId}`);
       const data = await res.json();
       console.log('Reviews API response:', data);
       if (res.ok) {
@@ -119,12 +120,13 @@ export default function Dashboard() {
     } else {
       console.log('No current user available');
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const handleUpdateOrderStatus = async (orderId, status) => {
     try {
       const token = localStorage.getItem('homezayka_token');
-      const res = await fetch(`http://localhost:8080/api/orders/${orderId}/status`, {
+      const res = await fetch(`${API_URL}/orders/${orderId}/status`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',

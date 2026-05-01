@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { API_URL } from '../config/api';
 export default function ReviewModal({ isOpen, onClose, order, onReviewSubmitted }) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState('');
@@ -12,7 +13,7 @@ export default function ReviewModal({ isOpen, onClose, order, onReviewSubmitted 
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem('homezayka_token');
-      const res = await fetch('http://localhost:8080/api/reviews', {
+      const res = await fetch(`${API_URL}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

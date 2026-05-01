@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { Link } from 'react-router-dom';
 
+import { API_URL } from '../config/api';
 export default function MyOrders() {
   const { users, meals } = useApp();
   const [activeTab, setActiveTab] = useState('Active');
@@ -13,7 +14,7 @@ export default function MyOrders() {
       const token = localStorage.getItem('homezayka_token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:8080/api/orders/myorders', {
+        const res = await fetch(`${API_URL}/orders/myorders`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();

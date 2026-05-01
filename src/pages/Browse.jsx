@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import MealCard from '../Components/MealCard';
 
-import { cuisines, categories, locations, dietaryOptions } from '../data/mockData';
+import { cuisines, categories, locations } from '../data/mockData';
 
 export default function Browse() {
   const { meals, getCookById } = useApp();
@@ -14,8 +14,24 @@ export default function Browse() {
     sort: 'Recommended'
   });
 
+  const hasAvailableSlots = (meal) => {
+    if (!meal?.availableFrom || !meal?.availableTo) return false;
+    let current = new Date(meal.availableFrom);
+    const end = new Date(meal.availableTo);
+    const now = new Date();
+    
+    while (current < end) {
+      const nextSlot = new Date(current);
+      nextSlot.setMinutes(current.getMinutes() + 30);
+      if (nextSlot > end) break;
+      if (current > now) return true;
+      current.setMinutes(current.getMinutes() + 30);
+    }
+    return false;
+  };
+
   const filteredMeals = meals.filter(m => {
-    const isAvailable = m.portionsAvailable > 0;
+    const isAvailable = m.portionsAvailable > 0 && hasAvailableSlots(m);
     const matchesSearch = m.title.toLowerCase().includes(search.toLowerCase()) || 
                           m.cuisine.toLowerCase().includes(search.toLowerCase());
     const matchesCuisine = filters.cuisine === 'All Cuisines' || m.cuisine === filters.cuisine;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 
+import { API_URL } from '../config/api';
 export default function Orders() {
   const { meals } = useApp();
   const [orders, setOrders] = useState([]);
@@ -10,7 +11,7 @@ export default function Orders() {
       const token = localStorage.getItem('homezayka_token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:8080/api/orders/myorders', {
+        const res = await fetch(`${API_URL}/orders/myorders`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -42,7 +43,7 @@ export default function Orders() {
                   </span>
                   <h3 className="font-display text-xl mt-2">{meal?.title}</h3>
                   <p className="text-xs text-gray-text mt-1 flex items-center gap-2">
-                    <i className="far fa-calendar-alt"></i> Pickup: {order.pickupTime?.date} {order.pickupTime?.startTime}
+                    <i className="far fa-calendar-alt"></i> Pickup: {order.pickupTime?.startTime}
                   </p>
                 </div>
                 <div className="border-l border-dark/10 pl-6 text-right">

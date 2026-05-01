@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
+import { API_URL } from '../config/api';
 export default function MealDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -15,12 +16,6 @@ export default function MealDetail() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   // Form States
-  const [customerDetails, setCustomerDetails] = useState({
-    fullName: '',
-    phone: '',
-    notes: ''
-  });
-  const [errors, setErrors] = useState({});
 
   const meal = meals.find(m => m.id === id || m._id === id);
   const cook = meal ? getCookById(meal.cookId?._id || meal.cookId?.id || meal.cookId) : null;
@@ -31,11 +26,31 @@ export default function MealDetail() {
     const slots = [];
     let current = new Date(meal.availableFrom);
     const end = new Date(meal.availableTo);
+    const now = new Date();
     
-    while (current <= end) {
-      const timeString = current.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const dateString = current.toLocaleDateString([], { month: 'short', day: 'numeric' });
-      slots.push(`${dateString}, ${timeString}`);
+    while (current < end) {
+      const nextSlot = new Date(current);
+      nextSlot.setMinutes(current.getMinutes() + 30);
+      
+      if (nextSlot > end) break;
+      
+      if (current > now) {
+        const day = current.getDate();
+        const month = current.toLocaleString('default', { month: 'long' }).toLowerCase();
+        const dateStr = `${day} ${month}`;
+        
+        const formatTime = (date) => {
+          let hours = date.getHours();
+          let minutes = date.getMinutes();
+          const ampm = hours >= 12 ? 'pm' : 'am';
+          hours = hours % 12;
+          hours = hours ? hours : 12;
+          minutes = minutes < 10 ? '0' + minutes : minutes;
+          return `${hours}:${minutes}${ampm}`;
+        };
+        
+        slots.push(`${dateStr} ${formatTime(current)} -${formatTime(nextSlot)}`);
+      }
       current.setMinutes(current.getMinutes() + 30);
     }
     return slots;
@@ -61,7 +76,7 @@ export default function MealDetail() {
         return;
       }
       
-      const res = await fetch('http://localhost:8080/api/orders', {
+      const res = await fetch(`${API_URL}/orders`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -72,13 +87,13 @@ export default function MealDetail() {
           cookId: cook._id || cook.id,
           portions: portionCount,
           totalPrice: meal.price * portionCount,
-          pickupTime: { date: new Date().toISOString().split('T')[0], startTime: selectedTime.split(', ')[1] || selectedTime }
+          pickupTime: { date: new Date().toISOString().split('T')[0], startTime: selectedTime }
         })
       });
       const data = await res.json();
       if(res.ok) {
         alert(`Order for ${meal.title} placed successfully!`);
-        navigate('/my-orders');
+        navigate('/user-dashboard');
       } else {
         alert(data.message || 'Order failed');
       }

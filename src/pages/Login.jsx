@@ -138,17 +138,35 @@
 //   );
 // }
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import logo from '../assets/logo.jpg';
 
+import { API_URL } from '../config/api';
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { setCurrentUser } = useApp();
+  const { currentUser, setCurrentUser } = useApp();
+
+  useEffect(() => {
+    const savedUserStr = localStorage.getItem('homezayka_user');
+    if (currentUser || savedUserStr) {
+      let user = currentUser;
+      if (!user && savedUserStr) {
+        try {
+          user = JSON.parse(savedUserStr);
+        } catch (e) {
+          console.error('Error parsing user data', e);
+        }
+      }
+      if (user) {
+        navigate(user.role === 'cook' ? '/dashboard' : '/user-dashboard');
+      }
+    }
+  }, [currentUser, navigate]);
 
   // Unified login logic for both form submission and demo buttons
   const performLogin = (userEmail, userRole, userName, userId) => {
@@ -177,7 +195,7 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8080/api/auth/login', {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })

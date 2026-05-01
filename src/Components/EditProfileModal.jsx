@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 
+import { API_URL } from '../config/api';
 export default function EditProfileModal({ isOpen, onClose, user }) {
   const { setCurrentUser } = useApp();
   
@@ -80,7 +81,7 @@ export default function EditProfileModal({ isOpen, onClose, user }) {
     
     setIsSaving(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/users/${user._id || user.id}`, {
+      const response = await fetch(`${API_URL}/users/${user._id || user.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

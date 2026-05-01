@@ -1,18 +1,19 @@
 import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { Link } from 'react-router-dom';
+import { locations } from '../data/mockData';
 
 export default function Cooks() {
-  const { users } = useApp();
+  const { users, currentUser } = useApp();
   const [searchQuery, setSearchQuery] = useState('');
   const [locationFilter, setLocationFilter] = useState('All Locations');
   const [sortBy, setSortBy] = useState('Highest Rated');
 
   const cooks = users.filter(u => u.role === 'cook');
-  
+
   const filteredCooks = cooks.filter(cook => {
-    const matchesSearch = cook.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          (cook.address && cook.address.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch = cook.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (cook.address && cook.address.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesLocation = locationFilter === 'All Locations' || (cook.address && cook.address.includes(locationFilter));
     return matchesSearch && matchesLocation;
   });
@@ -36,27 +37,26 @@ export default function Cooks() {
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
             <i className="fas fa-search absolute left-6 top-1/2 -translate-y-1/2 text-gray-text"></i>
-            <input 
-              type="text" 
-              placeholder="Search cooks by name or location..." 
+            <input
+              type="text"
+              placeholder="Search cooks by name or location..."
               className="w-full pl-14 pr-6 py-4 rounded-full bg-white border border-dark/5 shadow-sm focus:outline-none focus:ring-2 focus:ring-mustard/50 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          
-          <select 
+
+          <select
             className="px-8 py-4 rounded-full bg-white border border-dark/5 shadow-sm focus:outline-none cursor-pointer text-dark/80"
             value={locationFilter}
             onChange={(e) => setLocationFilter(e.target.value)}
           >
-            <option>All Locations</option>
-            <option>Greenfield Colony</option>
-            <option>Sunrise Apartments</option>
-            <option>Old Market Lane</option>
+            {locations.map(loc => (
+              <option key={loc} value={loc}>{loc}</option>
+            ))}
           </select>
 
-          <select 
+          <select
             className="px-8 py-4 rounded-full bg-white border border-dark/5 shadow-sm focus:outline-none cursor-pointer text-dark/80"
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
@@ -73,9 +73,9 @@ export default function Cooks() {
         {/* Dynamic Cooks Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-24">
           {sortedCooks.map(cook => (
-            <Link 
-              to={`/cooks/${cook.id}`} 
-              key={cook.id} 
+            <Link
+              to={`/cooks/${cook._id || cook.id}`}
+              key={cook._id || cook.id}
               className="bg-white rounded-[2rem] overflow-hidden border border-dark/5 hover:shadow-xl transition-all group"
             >
               <div className="relative h-32 bg-gradient-to-br from-mustard/20 to-coffee/10">
@@ -120,18 +120,18 @@ export default function Cooks() {
               <p className="text-white/80 text-lg mb-8">
                 Join our community of home cooks and start earning by sharing your delicious meals with neighbors.
               </p>
-              <Link 
-                to="/become-cook" 
+              <Link
+                to={currentUser ? (currentUser.role === 'cook' ? '/dashboard' : '/become-cook') : '/login'}
                 className="bg-mustard hover:bg-mustard/90 text-dark px-8 py-4 rounded-full font-bold inline-flex items-center gap-2 transition-all"
               >
                 Become a Cook <i className="fas fa-arrow-right"></i>
               </Link>
             </div>
             <div className="rounded-2xl overflow-hidden shadow-inner hidden md:block">
-              <img 
-                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop" 
-                alt="Home cooking" 
-                className="w-full h-64 object-cover" 
+              <img
+                src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop"
+                alt="Home cooking"
+                className="w-full h-64 object-cover"
               />
             </div>
           </div>

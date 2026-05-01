@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import logo from '../assets/logo.jpg';
 
+import { API_URL } from '../config/api';
 export default function SignupCustomer() {
   const [formData, setFormData] = useState({
     role: 'customer',
@@ -20,7 +21,7 @@ export default function SignupCustomer() {
   const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:8080/api/auth/register', {
+      const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

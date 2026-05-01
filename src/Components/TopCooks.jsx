@@ -12,7 +12,7 @@ export default function TopCooks() {
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {topCooks.map((cook) => (
-          <div key={cook.id} className="bg-white rounded-[2rem] p-6 border border-dark/10 flex items-center gap-4 text-left shadow-sm">
+          <div key={cook._id || cook.id} className="bg-white rounded-[2rem] p-6 border border-dark/10 flex items-center gap-4 text-left shadow-sm">
             <img 
               src={cook.avatar} 
               className="w-16 h-16 rounded-full object-cover" 

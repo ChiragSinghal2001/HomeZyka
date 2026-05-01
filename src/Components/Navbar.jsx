@@ -43,6 +43,7 @@ const scrollToSection = (id) => {
 
   // Close mobile menu when switching routes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMenuOpen(false);
   }, [location]);
 

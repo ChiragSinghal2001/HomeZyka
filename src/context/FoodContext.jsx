@@ -1,11 +1,12 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState } from 'react';
-import { mockMeals, mockUsers } from '../data/mockData';
+import { mockMeals } from '../data/mockData';
 
 export const FoodContext = createContext();
 
 export const FoodProvider = ({ children }) => {
   const [meals, setMeals] = useState(mockMeals);
-  const [orders, setOrders] = useState([]);
+  const [orders] = useState([]);
 
   const bookMeal = (mealId, portions) => {
     setMeals(prev => prev.map(m => 

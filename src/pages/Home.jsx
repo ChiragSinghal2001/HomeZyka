@@ -2,11 +2,8 @@ import Hero from '../Components/Hero';
 import HowItWorks from '../pages/HowItWorks';
 import Browse from '../pages/Browse';
 import Safety from '../pages/Safety';
-import { useApp } from '../context/AppContext';
 
 export default function Home() {
-  const { meals } = useApp();
-
   return (
     <div className="flex flex-col">
       {/* 1. Hero Section */}

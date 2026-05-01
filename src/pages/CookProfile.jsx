@@ -4,6 +4,7 @@ import { useApp } from '../context/AppContext';
 import MealCard from '../Components/MealCard';
 import EditProfileModal from '../Components/EditProfileModal';
 
+import { API_URL } from '../config/api';
 export default function CookProfile() {
 
   const { id } = useParams();
@@ -18,8 +19,9 @@ export default function CookProfile() {
   const cookMeals = meals.filter(m => m.cookId === id || m.cookId?._id === id);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoadingReviews(true);
-    fetch(`http://localhost:8080/api/reviews/cook/${id}`)
+    fetch(`${API_URL}/reviews/cook/${id}`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

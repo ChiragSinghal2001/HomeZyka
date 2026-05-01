@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { cuisines, categories, locations } from '../data/mockData';
 
+import { API_URL } from '../config/api';
 export default function AddMealModal({ isOpen, onClose }) {
-  const { addMeal, currentUser } = useApp();
+  const { addMeal } = useApp();
   const [formData, setFormData] = useState({
     title: '',
     price: '',
@@ -41,7 +42,7 @@ export default function AddMealModal({ isOpen, onClose }) {
         images: formData.imageStr ? [formData.imageStr] : ['https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'],
       };
 
-      const res = await fetch('http://localhost:8080/api/meals', {
+      const res = await fetch(`${API_URL}/meals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -20,9 +20,11 @@
 
 // export const useApp = () => useContext(AppContext);
 
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useState, useContext, useEffect } from 'react';
 import { mockMeals, mockUsers } from '../data/mockData';
 
+import { API_URL } from '../config/api';
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
@@ -32,7 +34,7 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     // Fetch meals
-    fetch('http://localhost:8080/api/meals')
+    fetch(`${API_URL}/meals`)
       .then(res => res.json())
       .then(data => {
         if(data && data.length > 0) setMeals(data);
@@ -40,7 +42,7 @@ export const AppProvider = ({ children }) => {
       .catch(err => console.error("Failed to fetch meals:", err));
 
     // Fetch cooks
-    fetch('http://localhost:8080/api/users/cooks')
+    fetch(`${API_URL}/users/cooks`)
       .then(res => res.json())
       .then(data => {
         if(data && data.length > 0) {
@@ -54,10 +56,11 @@ export const AppProvider = ({ children }) => {
     const storedUser = localStorage.getItem('homezayka_user');
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCurrentUser(parsedUser);
       
       // Fetch latest profile to ensure phone, address, etc. are up to date
-      fetch(`http://localhost:8080/api/users/${parsedUser._id || parsedUser.id}`)
+      fetch(`${API_URL}/users/${parsedUser._id || parsedUser.id}`)
         .then(res => res.json())
         .then(data => {
           if (data && !data.message) {

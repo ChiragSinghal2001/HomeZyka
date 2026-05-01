@@ -3,8 +3,10 @@ import React from 'react';
 import Testimonials from '../Components/Testimonials';
 import CookCTA from '../Components/CookCTA';
 import TopCooks from '../Components/TopCooks';
+import { useApp } from '../context/AppContext';
 
 export default function Safety() {
+  const { currentUser } = useApp();
   return (
 
     <main className="pt-24 pb-16 px-4 sm:px-6 lg:px-8 xl:px-[7vw]">
@@ -134,7 +136,7 @@ export default function Safety() {
 <div className="bg-warm-white">
         <Testimonials />
         <TopCooks />
-        <CookCTA />
+        {(!currentUser || currentUser.role !== 'cook') && <CookCTA />}
       </div>
      </main>
   );

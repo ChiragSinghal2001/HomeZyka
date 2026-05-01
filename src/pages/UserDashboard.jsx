@@ -5,6 +5,7 @@ import EditProfileModal from '../Components/EditProfileModal';
 import ReviewModal from '../Components/ReviewModal';
 
 
+import { API_URL } from '../config/api';
 export default function UserDashboard() {
   const { currentUser } = useApp();
   const [activeTab, setActiveTab] = useState('My Orders');
@@ -22,7 +23,7 @@ export default function UserDashboard() {
       const token = localStorage.getItem('homezayka_token');
       if (!token || token === 'undefined') return;
       try {
-        const res = await fetch('http://localhost:8080/api/orders/myorders', {
+        const res = await fetch(`${API_URL}/orders/myorders`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
@@ -44,7 +45,7 @@ export default function UserDashboard() {
       const token = localStorage.getItem('homezayka_token');
       if (!token || token === 'undefined') return;
       try {
-        const res = await fetch('http://localhost:8080/api/reviews/myreviews', {
+        const res = await fetch(`${API_URL}/reviews/myreviews`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const data = await res.json();
